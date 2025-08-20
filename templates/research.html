@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Research Portal - Medical Advisory{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Research Header -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-medical me-2"></i>Clinical Research Portal
+                        </h5>
+                        <small>Upload papers and query medical research with AI assistance</small>
+                    </div>
+                    <div class="col-auto">
+                        <span class="badge bg-light text-dark">
+                            {{ papers|length }} Papers Available
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Research Tabs -->
+        <ul class="nav nav-tabs mb-4" id="researchTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="query-tab" data-bs-toggle="tab" data-bs-target="#query" type="button" role="tab">
+                    <i class="fas fa-search me-2"></i>Query Research
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab">
+                    <i class="fas fa-upload me-2"></i>Upload Papers
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="library-tab" data-bs-toggle="tab" data-bs-target="#library" type="button" role="tab">
+                    <i class="fas fa-book me-2"></i>Paper Library
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="researchTabContent">
+            <!-- Query Research Tab -->
+            <div class="tab-pane fade show active" id="query" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-brain me-2"></i>AI Research Assistant
+                        </h6>
+                        <p class="text-muted">
+                            Ask questions about the uploaded research papers. Get structured evidence tables and clinical insights.
+                        </p>
+
+                        <form id="researchQueryForm">
+                            <div class="row mb-3">
+                                <div class="col-md-9">
+                                    <label for="researchQuery" class="form-label">Research Question</label>
+                                    <textarea class="form-control" id="researchQuery" rows="3" 
+                                            placeholder="e.g., What are the efficacy rates of treatment X for condition Y?" required></textarea>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="queryModel" class="form-label">AI Model</label>
+                                    <select class="form-select" id="queryModel">
+                                        <option value="gpt-5-mini">GPT-5</option>
+                                        <option value="gpt-4.1">GPT-4</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-success w-100 mt-2">
+                                        <i class="fas fa-search me-1"></i>Analyze
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Query Results -->
+                        <div id="queryResults" style="display: none;">
+                            <hr>
+                            <h6><i class="fas fa-chart-line me-2"></i>Research Analysis</h6>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <div id="queryResultContent"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sample Queries -->
+                        <div class="mt-4">
+                            <h6>Sample Research Questions:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button class="btn btn-outline-primary btn-sm mb-2 w-100" onclick="setResearchQuery('What are the most effective treatments for chronic pain management?')">
+                                        Chronic Pain Treatments
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm mb-2 w-100" onclick="setResearchQuery('Compare the side effects of different diabetes medications')">
+                                        Diabetes Medication Comparison
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button class="btn btn-outline-primary btn-sm mb-2 w-100" onclick="setResearchQuery('What are the latest findings on cardiovascular disease prevention?')">
+                                        Cardiovascular Prevention
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm mb-2 w-100" onclick="setResearchQuery('Analyze the efficacy of mental health interventions')">
+                                        Mental Health Interventions
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Papers Tab -->
+            <div class="tab-pane fade" id="upload" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-plus-circle me-2"></i>Add Research Paper
+                        </h6>
+                        <p class="text-muted">
+                            Upload medical research papers to expand the knowledge base for AI analysis.
+                        </p>
+
+                        <form id="uploadPaperForm">
+                            <div class="mb-3">
+                                <label for="paperTitle" class="form-label">Paper Title</label>
+                                <input type="text" class="form-control" id="paperTitle" 
+                                       placeholder="Enter the full title of the research paper" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="paperContent" class="form-label">Paper Content</label>
+                                <textarea class="form-control" id="paperContent" rows="12" 
+                                        placeholder="Paste the full text content of the research paper here..." required></textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Include abstract, methodology, results, and conclusions for best AI analysis
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-cloud-upload-alt me-1"></i>Upload Paper
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paper Library Tab -->
+            <div class="tab-pane fade" id="library" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-library me-2"></i>Research Paper Library
+                        </h6>
+                        <p class="text-muted">
+                            Browse and manage uploaded research papers.
+                        </p>
+
+                        {% if papers %}
+                        <div class="research-papers">
+                            {% for paper in papers %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ paper.title }}</h6>
+                                    <div class="text-muted small mb-2">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Uploaded {{ paper.created_at.strftime('%B %d, %Y') }}
+                                        {% if paper.uploader %}
+                                        by {{ paper.uploader.name }}
+                                        {% endif %}
+                                    </div>
+                                    <p class="card-text">
+                                        {{ paper.content[:200] }}...
+                                    </p>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="viewPaper({{ paper.id }})">
+                                        <i class="fas fa-eye me-1"></i>View Full Text
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                            <h6>No Research Papers Available</h6>
+                            <p class="text-muted">Upload research papers to start building your medical knowledge base.</p>
+                            <button class="btn btn-success" onclick="document.getElementById('upload-tab').click()">
+                                <i class="fas fa-plus me-1"></i>Upload First Paper
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Paper View Modal -->
+<div class="modal fade" id="paperModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paperModalTitle">Research Paper</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="paperModalContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/research.js') }}"></script>
+{% endblock %}

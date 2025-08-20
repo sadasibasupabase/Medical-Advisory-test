@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <div class="medical-hero-icon mb-4">
+                <i class="fas fa-heartbeat fa-4x text-primary"></i>
+            </div>
+            <h1 class="display-4 mb-3">Medical Advisory Chatbot</h1>
+            <p class="lead text-muted">
+                Get supportive health information, symptom guidance, and medical assistance powered by advanced AI
+            </p>
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Important:</strong> This tool provides supportive information only. Always consult licensed healthcare providers for medical advice.
+            </div>
+        </div>
+
+        <!-- Quick Access Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <div class="card h-100 medical-card">
+                    <div class="card-body text-center">
+                        <div class="medical-icon mb-3">
+                            <i class="fas fa-comments fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Symptom Analysis</h5>
+                        <p class="card-text">
+                            Describe your symptoms and get AI-powered triage guidance with appropriate care recommendations.
+                        </p>
+                        <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-right me-1"></i>Start Chat
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100 medical-card">
+                    <div class="card-body text-center">
+                        <div class="medical-icon mb-3">
+                            <i class="fas fa-file-medical fa-3x text-success"></i>
+                        </div>
+                        <h5 class="card-title">Research Portal</h5>
+                        <p class="card-text">
+                            Upload medical papers and get AI-powered analysis with structured evidence tables.
+                        </p>
+                        <a href="{{ url_for('research') }}" class="btn btn-success">
+                            <i class="fas fa-arrow-right me-1"></i>Explore Research
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-4">
+                <div class="feature-item text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-robot fa-2x text-info"></i>
+                    </div>
+                    <h6>AI-Powered Analysis</h6>
+                    <p class="small text-muted">
+                        Choose between GPT-4 and GPT-5-mini models for advanced medical information processing
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="feature-item text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-language fa-2x text-warning"></i>
+                    </div>
+                    <h6>Multi-Language Support</h6>
+                    <p class="small text-muted">
+                        Get treatment summaries in English and Hindi for better patient understanding
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="feature-item text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-bell fa-2x text-danger"></i>
+                    </div>
+                    <h6>Smart Reminders</h6>
+                    <p class="small text-muted">
+                        Medication and appointment reminders to support your healthcare journey
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role-specific Quick Actions -->
+        {% if session.get('user_role') == 'doctor' %}
+        <div class="card border-primary mb-4">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-user-md me-2"></i>Doctor Tools</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6>Treatment Summaries</h6>
+                        <p class="small text-muted">Generate patient-friendly summaries from discharge notes</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="showSummaryModal()">
+                            <i class="fas fa-plus me-1"></i>Create Summary
+                        </button>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6>Research Upload</h6>
+                        <p class="small text-muted">Add medical papers to the research database</p>
+                        <a href="{{ url_for('research') }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-upload me-1"></i>Upload Papers
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <a href="{{ url_for('chat') }}?type=symptom" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-stethoscope me-1"></i>Check Symptoms
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <a href="{{ url_for('chat') }}?type=exercise" class="btn btn-outline-success w-100">
+                            <i class="fas fa-dumbbell me-1"></i>Exercise Guidance
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <a href="{{ url_for('reminders') }}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-calendar me-1"></i>View Reminders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Treatment Summary Modal -->
+<div class="modal fade" id="summaryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Generate Treatment Summary</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="summaryForm">
+                    <div class="mb-3">
+                        <label for="dischargeNotes" class="form-label">Discharge Notes</label>
+                        <textarea class="form-control" id="dischargeNotes" rows="6" 
+                                placeholder="Enter the medical discharge notes here..." required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="summaryLanguage" class="form-label">Language</label>
+                            <select class="form-select" id="summaryLanguage">
+                                <option value="en">English</option>
+                                <option value="hi">Hindi (हिंदी)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="summaryModel" class="form-label">AI Model</label>
+                            <select class="form-select" id="summaryModel">
+                                <option value="gpt-5-mini">GPT-5</option>
+                                <option value="gpt-4.1">GPT-4</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+                <div id="summaryResult" class="mt-3" style="display: none;">
+                    <h6>Generated Summary:</h6>
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="summaryContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="generateSummary()">
+                    <i class="fas fa-cog me-1"></i>Generate Summary
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showSummaryModal() {
+    new bootstrap.Modal(document.getElementById('summaryModal')).show();
+}
+
+async function generateSummary() {
+    const notes = document.getElementById('dischargeNotes').value.trim();
+    const language = document.getElementById('summaryLanguage').value;
+    const model = document.getElementById('summaryModel').value;
+    
+    if (!notes) {
+        alert('Please enter discharge notes');
+        return;
+    }
+    
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating...';
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch('/api/generate_summary', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                notes: notes,
+                language: language,
+                model: model
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            alert('Error: ' + data.error);
+        } else {
+            document.getElementById('summaryContent').innerHTML = data.summary.replace(/\n/g, '<br>');
+            document.getElementById('summaryResult').style.display = 'block';
+        }
+    } catch (error) {
+        alert('Failed to generate summary. Please try again.');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

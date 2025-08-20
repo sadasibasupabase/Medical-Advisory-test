@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - Medical Advisory{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Chat Header -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">
+                            <i class="fas fa-comments me-2"></i>Medical Advisory Chat
+                        </h5>
+                        <small>Get supportive health information and guidance</small>
+                    </div>
+                    <div class="col-auto">
+                        <span class="badge bg-light text-dark">
+                            <i class="fas fa-user me-1"></i>{{ session.get('user_role', 'patient').title() }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Controls -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="chatType" class="form-label">Chat Type</label>
+                        <select class="form-select" id="chatType">
+                            <option value="symptom">Symptom Analysis</option>
+                            <option value="exercise">Exercise Guidance</option>
+                            <option value="followup">Follow-up Care</option>
+                            <option value="general">General Health</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="aiModel" class="form-label">AI Model</label>
+                        <select class="form-select" id="aiModel">
+                            <option value="gpt-5-mini">GPT-5</option>
+                            <option value="gpt-4.1">GPT-4</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Quick Actions</label>
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="setQuickMessage('I have been experiencing headaches')">
+                                <i class="fas fa-head-side-cough me-1"></i>Headache
+                            </button>
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="setQuickMessage('Can you suggest some light exercises?')">
+                                <i class="fas fa-dumbbell me-1"></i>Exercise
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="setQuickMessage('What should I monitor after my treatment?')">
+                                <i class="fas fa-clipboard-check me-1"></i>Follow-up
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="card chat-container">
+            <div class="card-body">
+                <!-- Chat Messages -->
+                <div id="chatMessages" class="chat-messages mb-3">
+                    <!-- System welcome message -->
+                    <div class="message-item bot-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <strong>Welcome to Medical Advisory Chat!</strong><br>
+                                I'm here to provide supportive health information. Please describe your symptoms or health questions, and I'll help guide you with appropriate care recommendations.
+                                <br><br>
+                                <em class="text-warning">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Remember: This is supportive information only, not medical advice. Please consult a licensed doctor for proper medical evaluation.
+                                </em>
+                            </div>
+                            <div class="message-time">Just now</div>
+                        </div>
+                    </div>
+
+                    <!-- Load previous chat history -->
+                    {% for chat in recent_chats %}
+                    <div class="message-item user-message">
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                {{ chat.message }}
+                            </div>
+                            <div class="message-time">{{ chat.timestamp.strftime('%H:%M') }}</div>
+                        </div>
+                        <div class="message-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="message-item bot-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                {{ chat.response|replace('\n', '<br>')|safe }}
+                            </div>
+                            <div class="message-time">
+                                {{ chat.timestamp.strftime('%H:%M') }}
+                                <span class="badge bg-secondary ms-1">{{ chat.model }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Typing indicator -->
+                <div id="typingIndicator" class="message-item bot-message" style="display: none;">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="typing-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <form id="chatForm" class="chat-input-form">
+                    <div class="input-group">
+                        <textarea class="form-control chat-input" id="messageInput" 
+                                placeholder="Describe your symptoms or ask a health question..." 
+                                rows="2" required></textarea>
+                        <button class="btn btn-primary" type="submit" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <small class="form-text text-muted mt-1">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Press Ctrl+Enter to send quickly
+                    </small>
+                </form>
+            </div>
+        </div>
+
+        <!-- Emergency Notice -->
+        <div class="alert alert-danger mt-4" role="alert">
+            <h6 class="alert-heading">
+                <i class="fas fa-exclamation-triangle me-2"></i>Emergency Situations
+            </h6>
+            <p class="mb-0">
+                If you are experiencing a medical emergency, do not use this chat. 
+                Call your local emergency services immediately or go to the nearest emergency room.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}
